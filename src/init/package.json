@@ -6,6 +6,6 @@
   "scripts": {
     "build": "esbuild assets/js/application.js --bundle --outdir=wwwroot/js --minify",
     "build-dev": "esbuild assets/js/application.js --bundle --sourcemap --outdir=wwwroot/js",
-    "build:css": "sass ./assets/css/application.scss:./wwwroot/css/application.css --style=compressed --no-source-map --load-path=node_modules"
+    "build:css": "tailwindcss -i ./assets/css/application.css -o ./wwwroot/css/application.css"
   }
 }
