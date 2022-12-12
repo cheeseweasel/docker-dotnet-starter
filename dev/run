@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+docker-compose run --rm app dotnet restore
+docker-compose run --rm app dotnet build
+docker-compose run --rm app dotnet run

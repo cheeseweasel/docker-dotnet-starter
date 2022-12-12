@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+echo $1
+docker-compose run --rm app dotnet new sln --name "$1"
+docker-compose run --rm app dotnet new webapp --name "$1"
+docker-compose run --rm app dotnet new mstest --name "$1.Test"
+docker-compose run --rm app dotnet add "./$1.Test/$1.Test.csproj" reference "./$1/$1.csproj"
+docker-compose run --rm app dotnet add "./$1.Test/$1.Test.csproj" package "Microsoft.AspNetCore.Mvc.Testing"
+docker-compose run --rm app dotnet sln add "./$1/$1.csproj"
+docker-compose run --rm app dotnet sln add "./$1.Test/$1.Test.csproj"
+
+docker-compose run --rm app cp init/package.json "./$1/package.json"
+
+docker-compose run --rm app mkdir -p "./$1/assets/css"
+docker-compose run --rm app touch "./$1/assets/css/application.scss"
+docker-compose run --rm app mkdir -p "./$1/assets/js"
+docker-compose run --rm app touch "./$1/assets/js/application.js"
+
+docker-compose run --rm app rm -f "./$1/wwwroot/js/site.js"
+docker-compose run --rm app rm -f "./$1/wwwroot/css/site.css"
+docker-compose run --rm app rm -rf "./$1/wwwroot/lib"
+
+docker-compose run --rm app /bin/sh -c "cd $1 && npm install --save esbuild sass"
+# TODO: set up test environment for integration tests using selenium and chrome docker service
+
+# Add build script to csproj
+# sed '/^<\/Project\>/i <Target Name=\"NpmRunBuild\" DependsOnTargets=\"NpmInstall\" BeforeTargets=\"BeforeBuild\">\n<Exec Command=\"npm run build\" WorkingDirectory=\".\" />\n</Target>' "./$1/$1.csproj"
+
+# ensure correct user is owner of all newly created files
+docker-compose run --rm app chown -R $(id -u):$(id -g) .
